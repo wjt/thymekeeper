@@ -87,8 +87,8 @@ def isodate(s):
 
 @argh.arg('--config', metavar="FILENAME")
 @argh.arg('--account')
-@argh.arg('--start', metavar="YYYY-MM-DD", type=isodate)
-@argh.arg('--end',   metavar="YYYY-MM-DD", type=isodate)
+@argh.arg('--start', metavar="YYYY-MM-DD", type=isodate, help='(inclusive)')
+@argh.arg('--end',   metavar="YYYY-MM-DD", type=isodate, help='(exclusive)')
 @argh.arg('--debug')
 def main(config='thymekeeper.ini', account=None, start=None, end=None, debug=False):
     logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
@@ -103,7 +103,7 @@ def main(config='thymekeeper.ini', account=None, start=None, end=None, debug=Fal
         raise ValueError("which do you want? " + accounts.keys())
 
     try:
-        events = scrape(account_, between=(start, end))
+        events = scrape(account_, between=(start, end - timedelta(days=1)))
     except Exception:
         log.error("wtf", exc_info=True)
         raise

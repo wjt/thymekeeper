@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from __future__ import division, print_function
 
 import argh
 from datetime import date, datetime, timedelta
@@ -9,6 +10,7 @@ import collections
 import ConfigParser
 import subprocess
 import logging
+import itertools
 
 log = logging.getLogger(__name__)
 
@@ -43,21 +45,50 @@ def scrape(account, between=(None, None)):
         return []
 
 
+def format_duration(duration):
+    total_seconds = duration.total_seconds()
+    total_minutes = total_seconds / 60.
+    minutes = int(total_minutes) % 60
+
+    total_hours = total_minutes / 60.
+    hours = int(total_hours)
+
+    return '{:2}h {:02}m'.format(hours, minutes)
+
+
+def format_days(duration, hours_per_day=8):
+    total_seconds = duration.total_seconds()
+    total_minutes = total_seconds / 60.
+    total_hours   = total_minutes / 60.
+
+    days = total_hours / hours_per_day
+
+    return '{:4.2}'.format(days)
+
+
 def summarise(events):
+    print('\n')
     total_duration = timedelta()
 
-    log.info(events)
-    for event in events: #sorted(events, key=lambda e: e.instance.vevent.dtstart.value):
-        ve = event.instance.vevent
-        # ve.prettyPrint()
-        duration = ve.dtend.value - ve.dtstart.value
-        hours = duration.total_seconds() / (60. * 60.)
-        print("{} {:4.2}: {}".format(
-            ve.dtstart.value, hours, ve.summary.value))
+    # TODO: group by day
+    # TODO: mangle recurring events
+    # TODO: don't double-count overlapping events
+    # TODO: don't count all-day events at all
+    events = sorted(events, key=lambda e: e.instance.vevent.dtstart.value)
+    for date, day_events in itertools.groupby(events, lambda e: e.instance.vevent.dtstart.value.date()):
+        print(u"{}:".format(date))
+        for event in day_events:
+            ve = event.instance.vevent
+            # ve.prettyPrint()
+            duration = ve.dtend.value - ve.dtstart.value
+            print(u"   {}: {}".format(
+                format_duration(duration),
+                u'\n          : '.join(ve.summary.value.split('; '))))
 
-        total_duration += duration
+            total_duration += duration
 
-    print total_duration.total_seconds() / (60. * 60. * 8.)
+    print('\n')
+    print('{} days'.format(format_days(total_duration)))
 
 
 Account = collections.namedtuple('Account', 'url username get_password')

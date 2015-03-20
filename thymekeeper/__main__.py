@@ -12,6 +12,8 @@ import subprocess
 import logging
 import itertools
 
+from rangeset import RangeSet, NEGATIVE_INFINITY, INFINITY
+
 log = logging.getLogger(__name__)
 
 
@@ -63,32 +65,39 @@ def format_days(duration, hours_per_day=8):
 
     days = total_hours / hours_per_day
 
-    return '{:4.2}'.format(days)
+    return '{:.2f}'.format(days)
+
+
+EMPTY_RANGE = ~RangeSet(NEGATIVE_INFINITY, INFINITY)
 
 
 def summarise(events):
     print('\n')
-    total_duration = timedelta()
+    timeline = EMPTY_RANGE
 
-    # TODO: group by day
     # TODO: mangle recurring events
-    # TODO: don't double-count overlapping events
     # TODO: don't count all-day events at all
     events = sorted(events, key=lambda e: e.instance.vevent.dtstart.value)
     for date, day_events in itertools.groupby(events, lambda e: e.instance.vevent.dtstart.value.date()):
         print(u"{}:".format(date))
+
+        day_timeline = EMPTY_RANGE
+        tasks = []
+
         for event in day_events:
             ve = event.instance.vevent
             # ve.prettyPrint()
-            duration = ve.dtend.value - ve.dtstart.value
-            print(u"   {}: {}".format(
-                format_duration(duration),
-                u'\n          : '.join(ve.summary.value.split('; '))))
+            day_timeline |= (ve.dtstart.value, ve.dtend.value)
+            tasks += ve.summary.value.split('; ')
 
-            total_duration += duration
+        print(u"   {}: {}".format(
+            format_duration(day_timeline.measure()),
+            u'\n          : '.join(tasks)))
+
+        timeline |= day_timeline
 
     print('\n')
-    print('{} days'.format(format_days(total_duration)))
+    print('{} days'.format(format_days(timeline.measure())))
 
 
 Account = collections.namedtuple('Account', 'url username get_password')

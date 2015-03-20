@@ -5,7 +5,7 @@ Do not use this program.
 If you track work done for your clients by putting events into a calendar, and
 that calendar is accessible over CalDAV, this program can summarize it for you.
 
-## Account file format
+## `thymekeeper.ini`
 
 ```ini
 [DEFAULT]

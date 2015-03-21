@@ -3,9 +3,8 @@
 from __future__ import division, print_function
 
 import argh
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 import caldav
-from caldav.elements import dav, cdav
 import collections
 import ConfigParser
 import subprocess
@@ -110,11 +109,17 @@ def load_accounts(filename):
     accounts = {}
     for section in config.sections():
         url          = config.get(section, 'url')
-        username     = config.get(section, 'username')
-        password_cmd = config.get(section, 'password-command')
 
-        def get_password():
-            return subprocess.check_output(password_cmd, shell=True)
+        try:
+            username = config.get(section, 'username')
+        except ConfigParser.NoOptionError:
+            username = None
+            get_password = lambda: None
+        else:
+            password_cmd = config.get(section, 'password-command')
+
+            def get_password():
+                return subprocess.check_output(password_cmd, shell=True)
 
         accounts[section] = Account(url, username, get_password)
 
@@ -140,7 +145,7 @@ def main(config='thymekeeper.ini', account=None, start=None, end=None, debug=Fal
         for account_ in accounts.itervalues():
             break
     else:
-        raise ValueError("which do you want? " + accounts.keys())
+        raise ValueError("which do you want? " + ' or '.join(accounts.keys()))
 
     try:
         events = scrape(account_, between=(start, end - timedelta(days=1)))

@@ -1,0 +1,99 @@
+{# vim: syntax=jinja
+#}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Thymekeeper</title>
+
+    {% assets "css_all" %}
+      <link href="{{ ASSET_URL }}" rel="stylesheet">
+    {% endassets %}
+
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+    <div class="container">
+
+      <div class="row">
+        <div class="col-sm-12">
+          <h1>Thymekeeper <small>A terrible timesheet system</small></h1>
+        </div>
+      </div>
+
+      <form method="POST" action="/" class="form-horizontal">
+        {{ form.hidden_tag() }}
+        <div class="form-group {% if form.ical_url.errors %}has-error{% endif %}">
+          {{ form.ical_url.label(class='col-sm-2 control-label') }}
+          <div class="col-sm-10">
+            {{ form.ical_url(size=20, class='form-control', type='url') }}
+            {% for error in form.ical_url.errors %}
+            <p class='help-block'>{{ error|e }}</p>
+            {% endfor %}
+          </div>
+        </div>
+        {% set date_errors = form.start.errors + form.end.errors %}
+        <div class="form-group {% if date_errors %}has-error{% endif %}">
+          {{ form.start.label(class='col-sm-2 control-label') }}
+          <div class="col-sm-4">
+            <div class="input-daterange input-group" id="datepicker">
+              {{ form.start(class='input-sm form-control', type='date') }}
+              <span class="input-group-addon">to</span>
+              {{ form.end(class='input-sm form-control', type='date') }}
+            </div>
+          </div>
+          <div class="col-sm-6">
+            {% for error in date_errors %}
+            <p class='help-block'>{{ error|e }}</p>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <input type="submit" value="Go" class="btn btn-primary">
+          </div>
+        </div>
+      </form>
+
+      {% if thymes %}
+      <div class="row">
+        <div class="col-sm-offset-2 col-sm-8">
+          <table class="table table-condensed">
+            <thead>
+              <tr>
+                <th colspan="2">Hello yes hello</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th rowspan='3'>yyyy-mm-dd</th>
+                <td>Foo</td>
+              </tr>
+              <tr>
+                <td>Foo</td>
+              </tr>
+              <tr>
+                <td>Foo</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+    </div> <!-- /container -->
+
+    {% assets "js_all" %}
+      <script src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+  </body>
+</html>

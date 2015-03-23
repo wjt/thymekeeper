@@ -1,1 +1,10 @@
+.webassets-cache
+*.egg-info
+
+/bower_components
+/node_modules
+/settings.py
+
 /thymekeeper.ini
+/thymekeeper/static/css_all.css
+/thymekeeper/static/js_all.js

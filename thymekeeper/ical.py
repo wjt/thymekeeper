@@ -55,6 +55,7 @@ class ICal(object):
         return super(ICal, self).__getitem__(key)
 
     def slice(self, start, end):
+        # TODO: wrong, use dateutil's support for this
         vtimezone = self.calendar.contents['vtimezone'][0]
         tzid = vtimezone.contents['tzid'][0]
         tz = pytz.timezone(tzid.value)
@@ -63,15 +64,28 @@ class ICal(object):
         end_midnight   = tz.localize(datetime.combine(end,   time.max)) if end   is not None else HEAT_DEATH_OF_UNIVERSE
 
         # TODO: ignore all-day events (?)
+        # TODO: only count OPAQUE (ie busy) events, not TRANSPARENT (ie ignore for free/busy
+        # purposes)?
         # TODO: recurring events
         vevents = []
         for vevent in self.calendar.contents['vevent']:
+            start = vevent.dtstart.value
+
+            # Skip all-day events
+            if not isinstance(start, datetime):
+                if not isinstance(start, date):
+                    log.warning("DTSTART neither datetime nor date: %s", vevent)
+
+                continue
+
             try:
-                if start_midnight <= vevent.dtstart.value <= end_midnight:
+                if start_midnight <= start <= end_midnight:
                     vevents.append(vevent)
             except TypeError:
-                log.error("%s <= %s <= %s from %s", start_midnight, vevent.dtstart.value,
-                          end_midnight, vevent, exc_info=True)
+                log.error("%s <= %s <= %s from %s",
+                          start_midnight, start, end_midnight, vevent,
+                          exc_info=True)
+
         vevents.sort(key=lambda vevent: (vevent.dtstart.value, vevent.dtend.value))
         return vevents
 

@@ -10,6 +10,7 @@ from thymekeeper import app, login_required, current_user, db, Calendar
 from thymekeeper.utils import isodate, isomonth
 from thymekeeper.ical import ICal, summarise_daily
 
+from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
 
 
@@ -48,16 +49,6 @@ def index():
                            calendars=current_user.calendars)
 
 
-def liftNone(f, m):
-    if m is None:
-        return None
-
-    return f(m)
-
-
-
-
-
 @app.route('/calendar/<int:id>')
 @login_required
 def show_calendar(id):
@@ -66,7 +57,9 @@ def show_calendar(id):
         return 403
 
     def get(field, f):
-        return liftNone(f, request.args.get(field, None))
+        x = request.args.get(field, None)
+        if x is not None:
+            return f(x)
 
     start = get('start', isodate)
     end   = get('end',   isodate)
@@ -80,6 +73,10 @@ def show_calendar(id):
         # TODO: surely dateutil
         start = month
         end = month + relativedelta(months=+1, days=-1)
+
+    if end:
+        # TODO: today in calendar timezone...
+        end = min(date.today(), end)
 
     app.logger.info('fetching %s', cal.url)
     response = requests.get(cal.url, timeout=5)

@@ -7,9 +7,10 @@
           <h2>{{ ical.name | e }} <small>between {{ start }} and {{ end }}</small></h2>
 
           <dl class="dl-horizontal">
-            <dt>Calendar days</dt>
+            {# TODO: Business days in period if start and end #}
+            <dt>Calendar days worked</dt>
             <dd>{{ daily.days | count }}</dd>
-            <dt>8-hour days</dt>
+            <dt>8-hour days worked</dt>
             <dd>{{ daily.total.timeline.measure().total_seconds() / 8 / 60 / 60 }}</dd>
           </dl>
 

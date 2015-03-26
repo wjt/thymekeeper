@@ -4,7 +4,7 @@ from flask import Flask
 from flask.ext import assets
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.security import Security, SQLAlchemyUserDatastore, \
-    UserMixin, RoleMixin, login_required
+    UserMixin, RoleMixin, login_required, current_user
 
 app = Flask(__name__)
 app.config.from_pyfile('../settings.py')
@@ -29,6 +29,20 @@ class User(db.Model, UserMixin):
     confirmed_at = db.Column(db.DateTime())
     roles = db.relationship('Role', secondary=roles_users,
                             backref=db.backref('users', lazy='dynamic'))
+
+    calendars = db.relationship('Calendar', backref="user")
+
+class Calendar(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    url = db.Column(db.Text, nullable=False)
+
+    # Filled in by whatever job caches the calendar (...)
+    name = db.Column(db.Text, nullable=True)
+    colour = db.Column(db.String(6), nullable=True)
+
+    deleted = db.Column(db.DateTime(), nullable=True)
 
 
 #### Security

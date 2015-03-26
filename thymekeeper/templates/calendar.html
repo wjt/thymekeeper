@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block body %}
+      <div class="row">
+        <div class="col-sm-offset-2 col-sm-8">
+          <h2>{{ ical.name | e }} <small>between {{ start }} and {{ end }}</small></h2>
+
+          <dl class="dl-horizontal">
+            <dt>Calendar days</dt>
+            <dd>{{ daily.days | count }}</dd>
+            <dt>8-hour days</dt>
+            <dd>{{ daily.total.timeline.measure().total_seconds() / 8 / 60 / 60 }}</dd>
+          </dl>
+
+          <table class="table table-condensed">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Tasks</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for date in daily.days %}
+              {% with day_summary = daily.days[date] %}
+              {% for task in day_summary.tasks %}
+              <tr>
+                {% if loop.first %}
+                {% with n =  day_summary.tasks | count %}
+                <th rowspan="{{ n }}">{{ date }}</th>
+                <td rowspan="{{ n }}">{{ day_summary.timeline.measure() }}</td>
+                {% endwith %}
+                {% endif %}
+                <td>{{ task | e }}</td>
+              </tr>
+              {% endfor %}
+              {% endwith %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+{% endblock %}

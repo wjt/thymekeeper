@@ -9,6 +9,7 @@ import logging
 import requests
 
 from thymekeeper.ical import ICal, summarise_daily
+from thymekeeper.utils import isodate
 from six.moves import StringIO
 
 log = logging.getLogger(__name__)
@@ -42,10 +43,6 @@ def load_accounts(filename):
         section: config.get(section, 'url')
         for section in config.sections()
     }
-
-
-def isodate(s):
-    return datetime.strptime(s, '%Y-%m-%d').date()
 
 
 @argh.arg('--config', metavar="FILENAME")

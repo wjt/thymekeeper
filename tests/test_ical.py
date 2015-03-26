@@ -1,6 +1,6 @@
 import pytest
 
-from datetime import date
+from datetime import date, timedelta
 from thymekeeper.ical import ICal, summarise, summarise_daily
 
 
@@ -36,4 +36,9 @@ def test_summarise(cal):
 
     assert daily.total == overall
 
-    # TODO: timeline tests, eg overlap
+    # TODO: timeline tests, eg overlap, empty.measure() returns 0 but should return empty timedelta
+
+def test_empty():
+    empty = summarise_daily([])
+    assert empty.days == {}
+    assert empty.total.timeline.measure() == timedelta()

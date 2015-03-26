@@ -13,11 +13,12 @@ def syncdb():
     db.create_all()
 
 @manager.command
-def dropdb():
+def reset():
     """
-    Drops the database, IRREVOCABLY and WITHOUT CONFIRMATION.
+    Drops and recreates the database, IRREVOCABLY and WITHOUT CONFIRMATION.
     """
     db.drop_all()
+    db.create_all()
 
 @manager.command
 def createsuperuser(email, password):

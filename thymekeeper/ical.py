@@ -1,3 +1,4 @@
+# vim: fileencoding=utf-8
 import collections
 import itertools
 import logging
@@ -7,11 +8,18 @@ import requests
 import vobject
 
 from datetime import date, time, datetime, timedelta
-from rangeset import RangeSet, NEGATIVE_INFINITY, INFINITY
+from rangeset import RangeSet
 
 from six.moves import StringIO
 
 log = logging.getLogger(__name__)
+
+# ± 1 day to work around a pytz bug…
+BIG_BANG = pytz.UTC.localize(datetime.min + timedelta(days=1))
+HEAT_DEATH_OF_UNIVERSE = pytz.UTC.localize(datetime.max - timedelta(days=1))
+
+# A bit ugly if printed, but forces the type of measure() to be a timedelta
+EMPTY_RANGE = RangeSet(BIG_BANG, BIG_BANG)
 
 
 class ICal(object):
@@ -51,12 +59,8 @@ class ICal(object):
         tzid = vtimezone.contents['tzid'][0]
         tz = pytz.timezone(tzid.value)
 
-        start_midnight = tz.localize(datetime.combine(start, time.min)
-                                     if start is not None else
-                                     datetime.min + timedelta(days=1))
-        end_midnight   = tz.localize(datetime.combine(end,   time.max)
-                                     if end is not None else
-                                     datetime.max - timedelta(days=1))
+        start_midnight = tz.localize(datetime.combine(start, time.min)) if start is not None else BIG_BANG
+        end_midnight   = tz.localize(datetime.combine(end,   time.max)) if end   is not None else HEAT_DEATH_OF_UNIVERSE
 
         # TODO: ignore all-day events (?)
         # TODO: recurring events
@@ -70,9 +74,6 @@ class ICal(object):
                           end_midnight, vevent, exc_info=True)
         vevents.sort(key=lambda vevent: (vevent.dtstart.value, vevent.dtend.value))
         return vevents
-
-
-EMPTY_RANGE = ~RangeSet(NEGATIVE_INFINITY, INFINITY)
 
 
 class Summary(collections.namedtuple('Summary', 'timeline tasks')):

@@ -7,7 +7,6 @@ from datetime import datetime
 import ConfigParser
 import logging
 import requests
-import operator
 
 from thymekeeper.ical import ICal, summarise_daily
 from six.moves import StringIO
@@ -72,15 +71,13 @@ def main(config='thymekeeper.ini', account=None, start=None, end=None, debug=Fal
     cal = ICal.from_fp(StringIO(response.text))
     daily = summarise_daily(cal[start:end])
 
-    for date, summary in daily.iteritems():
+    for date, summary in daily.days.iteritems():
         print(u"{}: {}".format(date, format_duration(summary.timeline.measure())))
         for task in summary.tasks:
             print(u'          : {}'.format(task))
 
-    timeline = reduce(operator.or_, (s.timeline for s in daily.values()))
-
     print('\n')
-    print('{} days'.format(format_days(timeline.measure())))
+    print('{} days'.format(format_days(daily.total.timeline.measure())))
 
 
 if __name__ == '__main__':

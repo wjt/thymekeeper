@@ -1,4 +1,3 @@
-import operator
 import pytest
 
 from datetime import date
@@ -31,9 +30,10 @@ def test_summarise(cal):
     assert overall.tasks == {'A meeting', 'A task for most of a day'}
 
     daily = summarise_daily(vevents)
-    assert len(daily) == 2
-    assert len(daily[date(2015, 3,  9)].tasks) == 1
-    assert len(daily[date(2015, 3, 24)].tasks) == 1
+    assert len(daily.days) == 2
+    assert len(daily.days[date(2015, 3,  9)].tasks) == 1
+    assert len(daily.days[date(2015, 3, 24)].tasks) == 1
 
-    assert reduce(operator.or_, (s.timeline for s in daily.values())) == overall.timeline
+    assert daily.total == overall
+
     # TODO: timeline tests, eg overlap

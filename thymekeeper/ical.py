@@ -1,6 +1,7 @@
 import collections
 import itertools
 import logging
+import operator
 import pytz
 import requests
 import vobject
@@ -75,7 +76,20 @@ EMPTY_RANGE = ~RangeSet(NEGATIVE_INFINITY, INFINITY)
 
 
 class Summary(collections.namedtuple('Summary', 'timeline tasks')):
-    pass
+    def __or__(self, that):
+        return Summary(self.timeline | that.timeline,
+                       self.tasks | that.tasks)
+
+    @staticmethod
+    def union(summaries):
+        return reduce(operator.or_, summaries, Summary(EMPTY_RANGE, set()))
+
+
+class DailySummary(collections.namedtuple('DailySummary', 'days total')):
+    def __new__(cls, days):
+        total = Summary.union(days.itervalues())
+
+        return super(DailySummary, cls).__new__(cls, days, total)
 
 
 def summarise(vevents):
@@ -91,19 +105,8 @@ def summarise(vevents):
 
 def summarise_daily(vevents):
     vevents = sorted(vevents, key=lambda vevent: vevent.dtstart.value)
-    return collections.OrderedDict([
+    return DailySummary(collections.OrderedDict([
         (date, summarise(day_events))
         for date, day_events in itertools.groupby(
             vevents, lambda ve: ve.dtstart.value.date())
-    ])
-
-
-def scrape_ical(url, start, end):
-    log.info('fetching %s', url)
-    response = requests.get(url, timeout=5)
-
-    log.info('parsing and slicing %s', url)
-    return slice_ical(StringIO(response.text), start, end)
-
-    # TOdO: x-wr-calname, x-apple-calendar-color, vtimezone?
-    return slice_ical(calendar, start, end)
+    ]))

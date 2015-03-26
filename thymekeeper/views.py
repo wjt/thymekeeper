@@ -4,7 +4,7 @@ from six.moves import StringIO
 from flask import render_template, redirect, url_for, request
 from flask_wtf import Form
 from wtforms import StringField, DateField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, URL
 
 from thymekeeper import app, login_required, current_user, db, Calendar
 from thymekeeper.utils import isodate, isomonth
@@ -15,7 +15,7 @@ from dateutil.relativedelta import relativedelta
 
 
 class AddCalendarForm(Form):
-    ical_url = StringField('iCal URL', validators=[DataRequired()])
+    ical_url = StringField('iCal URL', validators=[DataRequired(), URL()])
 
 
 @app.route('/calendar/add', methods=('POST',))

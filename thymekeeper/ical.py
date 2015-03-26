@@ -24,7 +24,7 @@ EMPTY_RANGE = RangeSet(BIG_BANG, BIG_BANG)
 
 class ICal(object):
     @classmethod
-    def from_fp(cls, fp):
+    def load(cls, fp):
         for calendar in vobject.readComponents(fp):
             return cls(calendar)
         else:

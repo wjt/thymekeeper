@@ -7,7 +7,7 @@ from thymekeeper.ical import ICal, summarise, summarise_daily
 @pytest.fixture
 def cal():
     with open('tests/test-calendar.ics', 'rb') as f:
-        return ICal.from_fp(f)
+        return ICal.load(f)
 
 
 def test_props(cal):

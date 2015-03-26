@@ -85,7 +85,7 @@ def show_calendar(id):
     response = requests.get(cal.url, timeout=5)
 
     app.logger.info('parsing and slicing %s', cal.url)
-    ical = ICal.from_fp(StringIO(response.text))
+    ical = ICal.load(StringIO(response.text))
     vevents = ical[start:end]
     daily = summarise_daily(vevents)
 
@@ -113,7 +113,7 @@ def olde():
         response = requests.get(url, timeout=5)
 
         app.logger.info('parsing and slicing %s', url)
-        cal = ICal.from_fp(StringIO(response.text))
+        cal = ICal.load(StringIO(response.text))
         vevents = cal[form.start.data:form.end.data]
         daily = summarise_daily(vevents)
 

@@ -65,7 +65,7 @@ def main(config='thymekeeper.ini', account=None, start=None, end=None, debug=Fal
     log.info('fetching %s', url)
     response = requests.get(url, timeout=5)
     response.raise_for_status()
-    cal = ICal.from_fp(StringIO(response.text))
+    cal = ICal.load(StringIO(response.text))
     daily = summarise_daily(cal[start:end])
 
     for date, summary in daily.days.iteritems():

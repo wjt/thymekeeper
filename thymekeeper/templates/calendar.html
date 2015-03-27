@@ -5,6 +5,17 @@
       <div class="row">
         <div class="col-sm-offset-2 col-sm-8">
           <h2>{{ ical.name | e }} <small>between {{ start }} and {{ end }}</small></h2>
+        </div>
+        <div class="col-sm-2">
+          <form method="POST" action="{{ url_for('refresh_calendar', id=cal.id) }}" class="form-horizontal">
+            <input type="submit" value="Refresh" class="btn">
+          </form>
+        </div>
+      </div>
+
+      {% if daily %}
+      <div class="row">
+        <div class="col-sm-offset-2 col-sm-8">
 
           <dl class="dl-horizontal">
             {# TODO: Business days in period if start and end #}
@@ -42,4 +53,5 @@
           </table>
         </div>
       </div>
+      {% endif %}
 {% endblock %}

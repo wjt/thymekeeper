@@ -24,6 +24,10 @@ EMPTY_RANGE = RangeSet(BIG_BANG, BIG_BANG)
 
 class ICal(object):
     @classmethod
+    def from_string(cls, string):
+        return cls.load(StringIO(string))
+
+    @classmethod
     def load(cls, fp):
         for calendar in vobject.readComponents(fp):
             return cls(calendar)

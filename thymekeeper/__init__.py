@@ -6,6 +6,11 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.security import Security, SQLAlchemyUserDatastore, \
     UserMixin, RoleMixin, login_required, current_user
 
+from celery import Celery
+
+from thymekeeper.ical import ICal
+
+
 app = Flask(__name__)
 app.config.from_pyfile('../settings.py')
 
@@ -37,17 +42,33 @@ class Calendar(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     url = db.Column(db.Text, nullable=False)
-
-    # Filled in by whatever job caches the calendar (...)
-    name = db.Column(db.Text, nullable=True)
-    colour = db.Column(db.String(6), nullable=True)
-
     deleted = db.Column(db.DateTime(), nullable=True)
+
+    cached = db.Column(db.Text, nullable=True)
+
+    @property
+    def ical(self):
+        if self.cached is None:
+            return None
+
+        return ICal.from_string(self.cached)
 
 
 #### Security
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 security = Security(app, user_datastore)
+
+
+#### Disgusting savory vegetable
+celery = Celery(app.import_name, broker=app.config['CELERY_BROKER_URL'])
+celery.conf.update(app.config)
+TaskBase = celery.Task
+class ContextTask(TaskBase):
+    abstract = True
+    def __call__(self, *args, **kwargs):
+        with app.app_context():
+            return TaskBase.__call__(self, *args, **kwargs)
+celery.Task = ContextTask
 
 
 #### Asserts

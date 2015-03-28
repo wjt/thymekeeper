@@ -31,11 +31,11 @@ def add_calendar():
 
         task = update_cached_calendar.delay(cal.id)
 
-        return redirect(url_for('show_calendar', id=cal.id))
+        return redirect(url_for('index'))
     else:
         return render_template('index.html',
                                form=form,
-                               calendars=current_user.calendars)
+                               calendars=current_user.calendars), 400
 
 
 @app.route('/', methods=('GET', 'POST'))
@@ -53,7 +53,7 @@ def index():
 def refresh_calendar(id):
     cal = Calendar.query.get_or_404(id)
     if cal.user != current_user:
-        return 403
+        return "DENIED", 403
 
     update_cached_calendar.delay(id)
 
@@ -76,20 +76,22 @@ def show_calendar(id):
 
     start = get('start', isodate)
     end   = get('end',   isodate)
-    month = get('month', isomonth)
+    # month = get('month', isomonth)
 
-    if month:
-        if (start or end):
-            app.logger.warning('TODO: reject')
+    # if month:
+    #     if (start or end):
+    #         app.logger.warning('TODO: reject')
 
-        assert month.day == 1
-        # TODO: surely dateutil
-        start = month
-        end = month + relativedelta(months=+1, days=-1)
+    #     assert month.day == 1
+    #     # TODO: surely dateutil
+    #     start = month
+    #     end = month + relativedelta(months=+1, days=-1)
 
-    if end:
-        # TODO: today in calendar timezone...
-        end = min(date.today(), end)
+    if not end:
+        end = date.today() - timedelta(days=1)
+
+    if not start:
+        start = end.replace(day=1)
 
     ical = cal.ical
     if ical is None:

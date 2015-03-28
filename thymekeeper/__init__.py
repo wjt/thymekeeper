@@ -1,3 +1,4 @@
+import contextlib
 import os
 
 from flask import Flask
@@ -9,6 +10,7 @@ from flask.ext.security import Security, SQLAlchemyUserDatastore, \
 from celery import Celery
 
 from thymekeeper.ical import ICal
+from thymekeeper.utils import stopwatch
 
 
 app = Flask(__name__)
@@ -51,7 +53,8 @@ class Calendar(db.Model):
         if self.cached is None:
             return None
 
-        return ICal.from_string(self.cached)
+        with stopwatch(app.logger, 'parsing ICal for {}'.format(self.id)):
+            return ICal.from_string(self.cached)
 
 
 #### Security

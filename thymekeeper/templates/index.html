@@ -5,11 +5,20 @@
   <div class="col-sm-8 col-sm-offset-2">
 <h2>Calendars</h2>
 
-<table>
+<table class='table'>
   <tbody>
     {% for calendar in calendars %}
     <tr>
-      <td><a href="{{ url_for('show_calendar', id=calendar.id) }}">{{ calendar.url | e }}</td>
+      {% if calendar.ical %}
+      <td>
+        <div class='blob' style='background-color: {{ calendar.ical.colour | e }}'>&nbsp;</div>
+        <a href="{{ url_for('show_calendar', id=calendar.id) }}">
+          {{ calendar.ical.name | e }}
+        </a>
+      </td>
+      {% else %}
+      <td>Loading…</td>
+      {% endif %}
     </tr>
     {% endfor %}
   </tbody>

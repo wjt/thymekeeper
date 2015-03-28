@@ -106,35 +106,3 @@ def show_calendar(id):
                            start=start,
                            end=end,
                            daily=daily)
-
-
-class CalDAVForm(Form):
-    ical_url = StringField('iCal URL', validators=[DataRequired()])
-    start    = DateField  ('Between',  validators=[DataRequired()])
-    end      = DateField  ('And',      validators=[DataRequired()])
-
-
-@app.route('/olde', methods=('GET', 'POST'))
-@login_required
-def olde():
-    form = CalDAVForm()
-    if form.validate_on_submit():
-        url = form.ical_url.data
-
-        app.logger.info('fetching %s', url)
-        response = requests.get(url, timeout=5)
-
-        app.logger.info('parsing and slicing %s', url)
-        cal = ICal.load(StringIO(response.text))
-        vevents = cal[form.start.data:form.end.data]
-        daily = summarise_daily(vevents)
-
-        return render_template('index.html',
-                               form=form,
-                               cal_name=cal.name,
-                               start=form.start.data,
-                               end=form.end.data,
-                               daily=daily)
-    else:
-        return render_template('index.html',
-                               form=form)

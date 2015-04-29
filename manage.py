@@ -45,5 +45,22 @@ def createsuperuser(email, password):
     user_datastore.create_user(email=email, password=password)
     db.session.commit()
 
+
+@manager.command
+def gensecret():
+    """Ensure <instance_path>/secret.py exists."""
+    try:
+        with app.open_instance_resource('secret.py', 'r'):
+            app.logger.info("(already exists)")
+    except IOError as e:
+        if e.errno != errno.ENOENT:
+            raise
+
+        print("(ignore the warning above, I'm generating it now)")
+        mkdir_p(app.instance_path)
+        with app.open_instance_resource('secret.py', 'wb') as f:
+            f.write('SECRET_KEY = {!r}\n'.format(os.urandom(32)))
+
+
 if __name__ == "__main__":
     manager.run()

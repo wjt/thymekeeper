@@ -1,4 +1,7 @@
+from __future__ import print_function, division
+
 import os
+import errno
 
 from flask import Flask
 from flask.ext import assets
@@ -14,6 +17,17 @@ from thymekeeper.utils import stopwatch
 
 app = Flask(__name__)
 app.config.from_pyfile('../settings.py')
+
+secret_py = os.path.join(app.instance_path, 'secret.py')
+try:
+    app.config.from_pyfile(secret_py)
+except IOError as e:
+    if e.errno != errno.ENOENT:
+        raise
+
+    print("Failed to load secret key from %s; try ./manage.py gensecret" % secret_py)
+    app.logger.warn("Failed to load secret key from %s; try ./manage.py gensecret", secret_py)
+
 
 # Database
 db = SQLAlchemy(app)

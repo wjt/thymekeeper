@@ -1,18 +1,15 @@
-import requests
-from six.moves import StringIO
-
-from flask import render_template, redirect, url_for, request, flash
+from flask import render_template, redirect, url_for, request
+from flask.ext.security import login_required, current_user
 from flask_wtf import Form
-from wtforms import StringField, DateField, HiddenField
-from wtforms.validators import DataRequired, URL, Regexp
+from wtforms import StringField
+from wtforms.validators import DataRequired, URL
 
-from thymekeeper import app, login_required, current_user, db, Calendar
-from thymekeeper.ical import ICal, summarise_daily
-from thymekeeper.tasks import update_cached_calendar
-from thymekeeper.utils import isodate, isomonth
+from thymekeeper import app, db, Calendar
+from thymekeeper.ical import summarise_daily
+from thymekeeper.tasks import ensure_update_cached_calendar
+from thymekeeper.utils import isodate
 
 from datetime import date, timedelta
-from dateutil.relativedelta import relativedelta
 
 
 class AddCalendarForm(Form):
@@ -29,7 +26,7 @@ def add_calendar():
         db.session.add(cal)
         db.session.commit()
 
-        task = update_cached_calendar.delay(cal.id)
+        ensure_update_cached_calendar(cal)
 
         return redirect(url_for('index'))
     else:
@@ -55,9 +52,7 @@ def refresh_calendar(id):
     if cal.user != current_user:
         return "DENIED", 403
 
-    update_cached_calendar.delay(id)
-
-    flash("Refreshing {}".format(cal.url))
+    ensure_update_cached_calendar(cal)
     # TODO: http://flask.pocoo.org/snippets/63/
     return redirect(url_for('show_calendar', id=cal.id))
 

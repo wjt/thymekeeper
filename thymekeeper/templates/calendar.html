@@ -8,7 +8,13 @@
   </div>
   <div class="col-sm-2">
     <form method="POST" action="{{ url_for('refresh_calendar', id=cal.id) }}" class="form-horizontal">
-      <input type="submit" value="Refresh" class="btn">
+      <input type="submit" class="btn"
+                           {% if cal.task_id %}
+                           value="Refreshing…" disabled
+                           {% else %}
+                           value="Refresh"
+                           {% endif %}
+                           >
     </form>
   </div>
 </div>

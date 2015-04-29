@@ -63,6 +63,7 @@ class Calendar(db.Model):
     deleted = db.Column(db.DateTime(), nullable=True)
 
     cached = db.Column(db.Text, nullable=True)
+    task_id = db.Column(db.Text, nullable=True)
 
     @property
     def ical(self):

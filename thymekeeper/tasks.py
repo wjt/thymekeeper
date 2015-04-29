@@ -16,5 +16,22 @@ def update_cached_calendar(calendar_id):
 
     logger.debug('caching response for %s', cal.url)
     cal.cached = response.text
+    cal.task_id = None
     db.session.add(cal)
+    db.session.commit()
+
+
+def completed(task):
+    return task.successful() or task.failed()
+
+
+def ensure_update_cached_calendar(calendar):
+    if calendar.task_id is not None:
+        task = update_cached_calendar.AsyncResult(calendar.task_id)
+        if not completed(task):
+            return
+
+    task = update_cached_calendar.delay(calendar.id)
+    calendar.task_id = task.id
+    db.session.add(calendar)
     db.session.commit()

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import errno
+import subprocess
 from flask.ext.script import Manager
 
 from thymekeeper import app, db, user_datastore
@@ -60,6 +61,14 @@ def gensecret():
         mkdir_p(app.instance_path)
         with app.open_instance_resource('secret.py', 'wb') as f:
             f.write('SECRET_KEY = {!r}\n'.format(os.urandom(32)))
+
+
+@manager.command
+def celery():
+    """
+    Run some Celery workers.
+    """
+    subprocess.check_call(('celery', 'worker', '-A', 'thymekeeper.celery'))
 
 
 if __name__ == "__main__":

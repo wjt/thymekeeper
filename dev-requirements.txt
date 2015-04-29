@@ -1,4 +1,6 @@
 -r requirements.txt
 ipdb==0.8
 ipython==3.0.0
+py==1.4.26
+pytest==2.6.4
 watchdog==0.8.3

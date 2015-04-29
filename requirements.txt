@@ -25,8 +25,6 @@ caldav==0.2.2
 celery==3.1.17
 coverage==3.7.1
 docutils==0.12
-ipdb==0.8
-ipython==3.0.0
 itsdangerous==0.24
 kombu==3.0.24
 lxml==3.4.2
@@ -42,6 +40,5 @@ redis==2.10.3
 requests==2.5.3
 six==1.9.0
 vobject==0.6.6
-watchdog==0.8.3
 webassets==0.10.1
 wsgiref==0.1.2

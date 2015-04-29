@@ -1,0 +1,4 @@
+-r requirements.txt
+ipdb==0.8
+ipython==3.0.0
+watchdog==0.8.3

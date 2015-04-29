@@ -1,11 +1,10 @@
-import contextlib
 import os
 
 from flask import Flask
 from flask.ext import assets
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.security import Security, SQLAlchemyUserDatastore, \
-    UserMixin, RoleMixin, login_required, current_user
+    UserMixin, RoleMixin
 
 from celery import Celery
 
@@ -16,17 +15,19 @@ from thymekeeper.utils import stopwatch
 app = Flask(__name__)
 app.config.from_pyfile('../settings.py')
 
-#### Database
+# Database
 db = SQLAlchemy(app)
 
 roles_users = db.Table('roles_users',
-        db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
-        db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
+                       db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
+                       db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
+
 
 class Role(db.Model, RoleMixin):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(80), unique=True)
     description = db.Column(db.String(255))
+
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -38,6 +39,7 @@ class User(db.Model, UserMixin):
                             backref=db.backref('users', lazy='dynamic'))
 
     calendars = db.relationship('Calendar', backref="user")
+
 
 class Calendar(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -57,24 +59,27 @@ class Calendar(db.Model):
             return ICal.from_string(self.cached)
 
 
-#### Security
+# Security
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 security = Security(app, user_datastore)
 
 
-#### Disgusting savory vegetable
+# Disgusting savory vegetable
 celery = Celery(app.import_name, broker=app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
 TaskBase = celery.Task
+
+
 class ContextTask(TaskBase):
     abstract = True
+
     def __call__(self, *args, **kwargs):
         with app.app_context():
             return TaskBase.__call__(self, *args, **kwargs)
 celery.Task = ContextTask
 
 
-#### Asserts
+# Assets
 env = assets.Environment(app)
 
 env.load_path = [

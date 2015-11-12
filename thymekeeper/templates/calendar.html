@@ -9,7 +9,7 @@
   <div class="col-sm-2">
     <form method="POST" action="{{ url_for('refresh_calendar', id=cal.id) }}" class="form-horizontal">
       <input type="submit" class="btn"
-                           {% if cal.task_id %}
+                           {% if cal.is_updating() %}
                            value="Refreshing…" disabled
                            {% else %}
                            value="Refresh"
@@ -26,8 +26,8 @@
       {# TODO: Business days in period if start and end #}
       <dt>Calendar days worked</dt>
       <dd>{{ daily.days | count }}</dd>
-      <dt>8-hour days worked</dt>
-      <dd>{{ daily.total.timeline.measure().total_seconds() / 8 / 60 / 60 }}</dd>
+      <dt>7.5-hour days worked</dt>
+      <dd>{{ daily.total.timeline.measure().total_seconds() / 7.5 / 60 / 60 }}</dd>
     </dl>
   </div>
   <div class="col-sm-4">

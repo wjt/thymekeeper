@@ -117,7 +117,8 @@ def summarise(vevents):
 
     for ve in vevents:
         timeline |= (ve.dtstart.value, ve.dtend.value)
-        tasks.update(ve.summary.value.split('; '))
+        if hasattr(ve, 'summary'):
+            tasks.update(ve.summary.value.split('; '))
 
     return Summary(timeline, tasks)
 

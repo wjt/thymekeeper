@@ -5,7 +5,6 @@
 /node_modules
 
 /instance
-/settings.py
 
 /thymekeeper.ini
 /thymekeeper/static/css_all.css

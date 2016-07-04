@@ -15,23 +15,22 @@ from thymekeeper.ical import ICal
 from thymekeeper.utils import stopwatch, mkdir_p
 
 
-app = Flask(__name__)
+app = Flask(__name__, instance_relative_config=True)
 app.config.from_object('thymekeeper.default_settings')
-app.config.from_pyfile('../settings.py', silent=True)
+app.config.from_pyfile('settings.py', silent=True)
 
-secret_py = os.path.join(app.instance_path, 'secret.py')
 try:
-    app.config.from_pyfile(secret_py)
+    app.config.from_pyfile('secret.py')
 except IOError as e:
     if e.errno != errno.ENOENT:
         raise
 
-    app.logger.info('Generating SECRET_KEY in %s', secret_py)
+    app.logger.info('Generating secret.py')
     mkdir_p(app.instance_path)
     with app.open_instance_resource('secret.py', 'wb') as f:
         f.write('SECRET_KEY = {!r}\n'.format(os.urandom(32)))
 
-    app.config.from_pyfile(secret_py)
+    app.config.from_pyfile('secret.py')
 
 # Database
 db = SQLAlchemy(app)

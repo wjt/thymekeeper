@@ -1,4 +1,6 @@
 import contextlib
+import errno
+import os
 import time
 
 from datetime import datetime

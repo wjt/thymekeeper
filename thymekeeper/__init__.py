@@ -12,12 +12,12 @@ from flask.ext.security import Security, SQLAlchemyUserDatastore, \
 from celery import Celery
 
 from thymekeeper.ical import ICal
-from thymekeeper.utils import stopwatch
+from thymekeeper.utils import stopwatch, mkdir_p
 
 
 app = Flask(__name__)
 app.config.from_object('thymekeeper.default_settings')
-app.config.from_pyfile('../settings.py')
+app.config.from_pyfile('../settings.py', silent=True)
 
 secret_py = os.path.join(app.instance_path, 'secret.py')
 try:
@@ -26,9 +26,12 @@ except IOError as e:
     if e.errno != errno.ENOENT:
         raise
 
-    print("Failed to load secret key from %s; try ./manage.py gensecret" % secret_py)
-    app.logger.warn("Failed to load secret key from %s; try ./manage.py gensecret", secret_py)
+    app.logger.info('Generating SECRET_KEY in %s', secret_py)
+    mkdir_p(app.instance_path)
+    with app.open_instance_resource('secret.py', 'wb') as f:
+        f.write('SECRET_KEY = {!r}\n'.format(os.urandom(32)))
 
+    app.config.from_pyfile(secret_py)
 
 # Database
 db = SQLAlchemy(app)

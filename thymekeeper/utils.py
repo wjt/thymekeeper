@@ -19,3 +19,11 @@ def stopwatch(log, message, *args):
     finally:
         t1 = time.time()
         log.debug("%s took %fs", m, t1 - t0)
+
+
+def mkdir_p(path):
+    try:
+        os.makedirs(path)
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            raise

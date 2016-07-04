@@ -16,6 +16,7 @@ from thymekeeper.utils import stopwatch
 
 
 app = Flask(__name__)
+app.config.from_object('thymekeeper.default_settings')
 app.config.from_pyfile('../settings.py')
 
 secret_py = os.path.join(app.instance_path, 'secret.py')

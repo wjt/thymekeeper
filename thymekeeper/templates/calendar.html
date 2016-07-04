@@ -26,8 +26,8 @@
       {# TODO: Business days in period if start and end #}
       <dt>Calendar days worked</dt>
       <dd>{{ daily.days | count }}</dd>
-      <dt>7.5-hour days worked</dt>
-      <dd>{{ daily.total.timeline.measure().total_seconds() / 7.5 / 60 / 60 }}</dd>
+      <dt>{{ hours_per_day }}-hour days worked</dt>
+      <dd>{{ daily.total.timeline.measure().total_seconds() / hours_per_day / 60 / 60 }}</dd>
     </dl>
   </div>
   <div class="col-sm-4">

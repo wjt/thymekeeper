@@ -100,4 +100,6 @@ def show_calendar(id):
                            ical=ical,
                            start=start,
                            end=end,
-                           daily=daily)
+                           daily=daily,
+                           hours_per_day=8,
+                          )

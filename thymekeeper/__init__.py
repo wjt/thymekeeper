@@ -72,7 +72,11 @@ class Calendar(db.Model):
             return None
 
         with stopwatch(app.logger, 'parsing ICal for {}'.format(self.id)):
-            return ICal.from_string(self.cached)
+            try:
+                return ICal.from_string(self.cached)
+            except:
+                app.logger.warn('unparseable ICal', exc_info=True)
+                return None
 
 
 # Security

@@ -35,7 +35,7 @@ python-dateutil==2.4.1
 pytz==2015.2
 rangeset==0.0.5
 redis==2.10.3
-requests==2.5.3
+requests==2.20.1
 six==1.9.0
 vobject==0.6.6
 webassets==0.10.1
